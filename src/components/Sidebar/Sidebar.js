@@ -10,18 +10,6 @@ import styled from '@emotion/styled';
 const StylishSidebar = forwardRef((props, ref) => {
   const { 
     backgroundImage = "",
-    useImageAsHeader = false,
-    /*header = {
-      fullName: 'My Test',
-      shortName: 'SDP'
-    },
-    headerImage = {
-      urlExpanded: '',
-      urlCollapsed: '',
-      heightExpanded: '30pt',
-      heightCollapsed: '22pt',
-      align: 'center'
-    },*/
     menuItems = [
       {name: 'Item1', to: '/item1', icon: 'cut', subMenuItems: [] },
       {name: 'Item2LongName', to: '/item2LongName', icon: 'build', 
@@ -71,7 +59,6 @@ const StylishSidebar = forwardRef((props, ref) => {
   // State
   const [selected, setSelectedMenuItem] = useState(menuItems[0] ? menuItems[0].name : null);
   const [isSidebarOpen, setSidebarState] = useState(isOpen);
-  //const [headerState, setHeader] = useState(header.fullName);
   const [subMenusStates, setSubmenus] = useState({});
   const [currentPalette, setPalette] = useState({})
 
@@ -100,11 +87,6 @@ const StylishSidebar = forwardRef((props, ref) => {
       setSelectedMenuItem(selectedItem)
     }
   }, [menuItems])
-
-  // Update of header state
-  /*useEffect(() => {
-    isSidebarOpen ? setTimeout(() => setHeader(header.fullName), 200) : setHeader(header.shortName);
-  }, [isSidebarOpen, header]);*/
 
 
   // Update of sidebar state
@@ -178,16 +160,10 @@ const StylishSidebar = forwardRef((props, ref) => {
     setSubmenus(subMenusCopy);
   }
 
-
   const handleToggler = () => {
     if (onTogglerClick) onTogglerClick();
     setSidebarState(!isSidebarOpen)
   }
-
-  /*
-  const handleHeaderClick = () => {
-    if (onHeaderClick) onHeaderClick();
-  }*/
 
   const getMenuItemsJSX = (menuItems) =>  {
     return menuItems.map((item, index) => {
@@ -278,25 +254,7 @@ const StylishSidebar = forwardRef((props, ref) => {
       >
         <div>
         <SidebarHeader>
-        {/* {useImageAsHeader ? (
-          <SidebarHeaderImageContainer 
-            height={isSidebarOpen ? headerImage.heightExpanded : headerImage.heightCollapsed}
-            align={isSidebarOpen ? headerImage.align : 'center'}
-            hasHeaderClick={!!onHeaderClick}
-            isSidebarOpen={isSidebarOpen}
-          >
-            <SidebarHeaderImage src={isSidebarOpen ? headerImage.urlExpanded : headerImage.urlCollapsed} />
-          </SidebarHeaderImageContainer>
-        ) : (
-          <SidebarHeaderText 
-            font={fonts.header}
-            hasHeaderClick={!!onHeaderClick}
-            onClick={() => handleHeaderClick()}
-          >
-            {headerState}
-          </SidebarHeaderText>
-        )}
-        */}
+        
         {showToggler && (
           <TogglerContainer onClick={() => handleToggler()}>
             <Toggler> 
