@@ -10,7 +10,7 @@ import styled from '@emotion/styled';
 const StylishSidebar = forwardRef((props, ref) => {
   const { 
     backgroundImage = "",
-    //useImageAsHeader = false,
+    useImageAsHeader = false,
     /*header = {
       fullName: 'My Test',
       shortName: 'SDP'
@@ -31,6 +31,16 @@ const StylishSidebar = forwardRef((props, ref) => {
           { name: 'Sub3', to: '/sub3'}]
       }
     ],
+    menuItemsBottom = [
+      {name: 'Item1', to: '/item1', icon: 'cut', subMenuItems: [] },
+      {name: 'Item2LongName', to: '/item2LongName', icon: 'build', 
+        subMenuItems: [
+          { name: 'Sub1', to: '/sub1'},
+          { name: 'Sub2', to: '/sub2'}, 
+          { name: 'Sub3', to: '/sub3'}]
+      }
+
+    ],
     fonts = {
       header: 'Poppins',
       menu: 'Poppins'
@@ -44,9 +54,9 @@ const StylishSidebar = forwardRef((props, ref) => {
       selectedBackgroundCollapsedMode: 'light'
     },
     presetPalette = '',
-    widthExpanded = '20%',
-    widthCollapsed = '2%',
-    minWidth = '40px',
+    widthExpanded = '250px',
+    widthCollapsed = '50px',
+    minWidth = '45px',
     maxWidth = '280px',
     className = {},
     isOpen = true,
@@ -85,6 +95,7 @@ const StylishSidebar = forwardRef((props, ref) => {
     const parts = path.split('/');
 
     if (path !== '/' && parts[1].charAt(0).toUpperCase() !== menuItems[0].name) {
+      
       const selectedItem = parts[1].charAt(0).toUpperCase() + parts[1].slice(1);
       setSelectedMenuItem(selectedItem)
     }
@@ -136,7 +147,7 @@ const StylishSidebar = forwardRef((props, ref) => {
       if (selectedItemIndex !== -1) newSubmenus[selectedItemIndex]['isOpen'] = true;
       if (selectedItemIndex !== -1 && selectedSubItemIndex !== -1) newSubmenus[selectedItemIndex]['selected'] = selectedSubItemIndex;
     }
-
+    console.log(subMenusStates);
     Object.keys(subMenusStates).length === 0 && setSubmenus(newSubmenus);
   }, [menuItems, subMenusStates]);
 
@@ -178,67 +189,68 @@ const StylishSidebar = forwardRef((props, ref) => {
     if (onHeaderClick) onHeaderClick();
   }*/
 
+  const getMenuItemsJSX = (menuItems) =>  {
+    return menuItems.map((item, index) => {
+      console.log(`selected: ${selected} - ItemName: ${item.name} -`);
+      const isItemSelected = selected === item.name;
 
-  const menuItemsJSX = menuItems.map((item, index) => {
-    const isItemSelected = selected === item.name;
+      const hasSubmenus = !!item.subMenuItems.length;
+      const isOpen = subMenusStates[index] ? subMenusStates[index].isOpen : false;
 
-    const hasSubmenus = !!item.subMenuItems.length;
-    const isOpen = subMenusStates[index] ? subMenusStates[index].isOpen : false;
+      const subMenusJSX = item.subMenuItems.map((subMenuItem, subMenuItemIndex) => {
+        const isSubmenuItemSelected = subMenusStates[index] && isItemSelected ? subMenusStates[index].selected === subMenuItemIndex : false;
 
-    const subMenusJSX = item.subMenuItems.map((subMenuItem, subMenuItemIndex) => {
-      const isSubmenuItemSelected = subMenusStates[index] ? subMenusStates[index].selected === subMenuItemIndex : false;
+        return (
+          <Link to={`${item.to}${subMenuItem.to}`} style={{ textDecoration: 'none' }} key={subMenuItemIndex}>
+          <SubMenuItem
+            font={fonts.menu}
+            onClick={e => handleSubMenuItemClick(e, index, subMenuItemIndex)}
+            selected={isSubmenuItemSelected}
+            colorPalette={currentPalette}
+          >
+            {subMenuItem.name}
+          </SubMenuItem>
+          </Link>
+        )
+      })
 
       return (
-        <Link to={`${item.to}${subMenuItem.to}`} style={{ textDecoration: 'none' }} key={subMenuItemIndex}>
-        <SubMenuItem
-          font={fonts.menu}
-          onClick={e => handleSubMenuItemClick(e, index, subMenuItemIndex)}
-          selected={isSubmenuItemSelected}
-          colorPalette={currentPalette}
-        >
-          {subMenuItem.name}
-        </SubMenuItem>
-        </Link>
+        <ItemContainer key={index}>
+          <Link to={item.to} style={{ textDecoration: 'none' }}>
+          <MenuItem
+            font={fonts.menu}
+            selected={isItemSelected}
+            onClick={e => handleMenuItemClick(e, item.name, index)}
+            isSidebarOpen={isSidebarOpen}
+            isOpen={isOpen}
+            colorPalette={currentPalette}
+          >
+
+            <IconContainer isSidebarOpen={isSidebarOpen}>
+                  <Icon icon={item.icon} color={currentPalette.fontColor} /> 
+            </IconContainer>
+            <Text isSidebarOpen={isSidebarOpen}>{item.name}</Text>
+            {hasSubmenus && isSidebarOpen && (
+              <DropdownIcon selected={isItemSelected} isOpen={isOpen} colorPalette={currentPalette} />
+            )}
+          </MenuItem>
+          </Link>
+          {/* Display submenus if they exist  */}
+          <AnimatePresence>
+            {hasSubmenus && isOpen && isItemSelected && (
+              <motion.nav 
+                initial={{ opacity: 0, y: -15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35 }}
+                exit={{ opacity: 0, x: -30 }}
+              >
+                <SubMenuItemContainer isSidebarOpen={isSidebarOpen} colorPalette={currentPalette}>{subMenusJSX}</SubMenuItemContainer>
+              </motion.nav>
+            )}
+          </AnimatePresence>
+        </ItemContainer>
       )
-    })
-
-    return (
-      <ItemContainer key={index}>
-        <Link to={item.to} style={{ textDecoration: 'none' }}>
-        <MenuItem
-          font={fonts.menu}
-          selected={isItemSelected}
-          onClick={e => handleMenuItemClick(e, item.name, index)}
-          isSidebarOpen={isSidebarOpen}
-          isOpen={isOpen}
-          colorPalette={currentPalette}
-        >
-
-          <IconContainer isSidebarOpen={isSidebarOpen}>
-                <Icon icon={item.icon} color={currentPalette.fontColor} /> 
-          </IconContainer>
-          <Text isSidebarOpen={isSidebarOpen}>{item.name}</Text>
-          {hasSubmenus && isSidebarOpen && (
-            <DropdownIcon selected={isItemSelected} isOpen={isOpen} colorPalette={currentPalette} />
-          )}
-        </MenuItem>
-        </Link>
-        {/* Display submenus if they exist  */}
-        <AnimatePresence>
-          {hasSubmenus && isOpen && (
-            <motion.nav 
-              initial={{ opacity: 0, y: -15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35 }}
-              exit={{ opacity: 0, x: -30 }}
-            >
-              <SubMenuItemContainer isSidebarOpen={isSidebarOpen} colorPalette={currentPalette}>{subMenusJSX}</SubMenuItemContainer>
-            </motion.nav>
-          )}
-        </AnimatePresence>
-      </ItemContainer>
-    )
-  });
+  })};
 
   return (
     <>
@@ -264,6 +276,7 @@ const StylishSidebar = forwardRef((props, ref) => {
         ref={ref}
         style={{...className}}
       >
+        <div>
         <SidebarHeader>
         {/* {useImageAsHeader ? (
           <SidebarHeaderImageContainer 
@@ -292,7 +305,10 @@ const StylishSidebar = forwardRef((props, ref) => {
           </TogglerContainer>
         )}
         </SidebarHeader>
-        <MenuItemContainer>{menuItemsJSX}</MenuItemContainer>
+        <MenuItemContainer>{getMenuItemsJSX(menuItems)}</MenuItemContainer>
+        </div>
+        <BottomMenuItemContainer>{getMenuItemsJSX(menuItemsBottom)}
+        </BottomMenuItemContainer>
       </SidebarContainer>
     </>
   )
@@ -321,7 +337,7 @@ const Colors = {
   pinkAndBlue: {
     bgColor1: '#7ee8faCC',
     bgColor2: '#eec0c6CC',
-    fontColor: '#965d69',
+    fontColor: '#965d69',     
     fontColorSelected: '#211618',
     dividerColor: '#e8d5d8',
     selectedBackgroundCollapsedMode: 'dark'
@@ -379,7 +395,7 @@ const Colors = {
 
 const SidebarContainer = styled.div`
   width: ${p => p.isSidebarOpen ? p.widthExpanded : p.widthCollapsed};
-  height: 100vh;
+  height: 100%;
   max-width: ${p => p.maxWidth};
   min-width: ${p => p.minWidth};
   background-color: ${p => p.colorPalette.bgColor2};
@@ -388,7 +404,9 @@ const SidebarContainer = styled.div`
   background-repeat: no-repeat;
   background-position: center center;
   color: ${p => p.colorPalette.fontColorSelected};
-  //position: relative; // Toggler
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   transition: .2s ease-in all;
 `
 /*
@@ -415,6 +433,15 @@ const SidebarHeaderImage = styled.img`
   height: inherit
 `
 */
+
+const BottomMenuItemContainer = styled.div`
+  width:100%;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid;
+  padding: 10px 0;
+`;
+
 const MenuItemContainer = styled.div``;
 const ItemContainer = styled.div``;
 
@@ -496,7 +523,7 @@ const DropdownIcon = styled.span`
   border: solid ${p => p.selected ? p.colorPalette.fontColorSelected : p.colorPalette.fontColor};
   border-width: 0 1px 1px 0;
   padding: 3px;
-  transform: ${p => p.isOpen ? 'rotate(-135deg)' : 'rotate(45deg)'};
+  transform: ${p => p.isOpen && p.selected ? 'rotate(-135deg)' : 'rotate(45deg)'};
   transition: .4s;
 `;
 

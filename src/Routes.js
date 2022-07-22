@@ -8,6 +8,7 @@ import MyApplications from './components/MainView/MyApplications/MyApplications'
 import SparkUI from './components/MainView/SparkUI/SparkUI';
 import Search from './components/MainView/Search/Search'; 
 
+
 const Routes = () => {
     return (
         <Switch>
